@@ -7,11 +7,6 @@ import (
 	"github.com/gofiber/template/html"
 )
 
-// User is used for variables injecting data about user.
-type User struct {
-	Name string
-}
-
 func main() {
 	// Create a new engine
 	engine := html.New("./views", ".gohtml")
