@@ -1,17 +1,42 @@
 package main
 
 import (
-	"net/http"
+	"log"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/template/html"
 )
 
-func main() {
-	app := fiber.New()
+// User is used for variables injecting data about user.
+type User struct {
+	Name string
+}
 
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.Status(http.StatusOK).SendString("Hi, World!")
+func main() {
+	// Create a new engine
+	engine := html.New("./views", ".gohtml")
+
+	// Pass the engine to the Views
+	app := fiber.New(fiber.Config{
+		Views: engine,
 	})
 
-	app.Listen(":3000")
+	app.Get("/", handler)
+	app.Get("/p", handlerUser)
+
+	log.Fatal(app.Listen(":3000"))
+}
+
+func handler(c *fiber.Ctx) error {
+	return c.Render("index", fiber.Map{
+		"Person": "John",
+	})
+}
+
+func handlerUser(c *fiber.Ctx) error {
+	u := User{
+		Name: "John",
+	}
+
+	return c.Render("index", u)
 }
