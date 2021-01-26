@@ -1,0 +1,45 @@
+package main
+
+import (
+	"github.com/gofiber/websocket/v2"
+)
+
+type Room struct {
+	commBroadcast  chan []byte
+	connRegister   chan *websocket.Conn
+	connUnregister chan *websocket.Conn
+	usersIn        map[*websocket.Conn]*User
+}
+
+func NewRoom() *Room {
+	return &Room{
+		commBroadcast:  make(chan []byte),
+		connRegister:   make(chan *websocket.Conn),
+		connUnregister: make(chan *websocket.Conn),
+		usersIn:        make(map[*websocket.Conn]*User),
+	}
+}
+
+func (r *Room) Run() {
+	for {
+		select {
+		case conn := <-r.connRegister:
+			{
+				r.usersIn[user] = true
+			}
+
+		case user := <-r.removeUser:
+			{
+				delete(r.usersIn, user)
+				close(user.commSend)
+			}
+
+		case msg := <-r.commBroadcast:
+			{
+				for u := range r.usersIn {
+					u.commSend <- msg
+				}
+			}
+		}
+	}
+}
